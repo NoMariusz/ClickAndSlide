@@ -115,7 +115,7 @@ function mix(divideNum){
 
 function checkIfBlocksGoodPositioned(){
     if(blocks.find(block => !block.isInGoodPos()) == undefined){
-        alert('Wow, wygrałeś, super!');
+        alert('Wow, you win, nice!');
     }
 }
 
