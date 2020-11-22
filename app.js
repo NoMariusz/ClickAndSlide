@@ -3,6 +3,8 @@ const blocks = [];
 let blankBlock = null;
 
 //block
+const SLIDING_BLOCKS_TIME = 60;
+const SLIDING_BLOCKS_SMOOTH = 20;
 const boardNode = document.getElementById('board');
 const mixingTimeouts = [];
 
@@ -31,6 +33,8 @@ class Block{
             htmlNode.style.backgroundPosition = `${this.position.column * 100 / (this.divideNum - 1)}% \
             ${this.position.row * 100/ (this.divideNum - 1)}%`;
             htmlNode.onclick = () => {this.onBlockClick()}
+        } else {
+            htmlNode.style.zIndex = 1;
         }
 
         boardNode.appendChild(htmlNode)
@@ -48,7 +52,7 @@ class Block{
     onBlockClick(){
         if (!this.canMoveBlock()){return false}
         this.moveBlock();
-        checkIfBlocksGoodPositioned();
+        setTimeout(checkIfBlocksGoodPositioned, SLIDING_BLOCKS_TIME);
     }
 
     moveBlock(){
@@ -59,9 +63,17 @@ class Block{
     }
 
     moveToPos(newPos){
-        this.position = newPos;
-        this.htmlNode.style.left = this.position.column * this.blockSize + '%';
-        this.htmlNode.style.top = this.position.row * this.blockSize + '%';
+        let positionToIncrease = {left: (newPos.column - this.position.column) * this.blockSize / SLIDING_BLOCKS_SMOOTH,
+            top: (newPos.row - this.position.row) * this.blockSize / SLIDING_BLOCKS_SMOOTH}
+        for (let timeoutIter = 1; timeoutIter <= SLIDING_BLOCKS_SMOOTH; timeoutIter++) {
+            let moveInterval = setTimeout(() => {
+                this.htmlNode.style.left = this.position.column * this.blockSize + positionToIncrease.left * timeoutIter + '%';
+                this.htmlNode.style.top = this.position.row * this.blockSize + positionToIncrease.top * timeoutIter+ '%';
+                if (timeoutIter == SLIDING_BLOCKS_SMOOTH){
+                    this.position = newPos;
+                }
+            }, (timeoutIter - 1) * SLIDING_BLOCKS_TIME / SLIDING_BLOCKS_SMOOTH);
+        }
     }
 }
 
@@ -109,7 +121,7 @@ function mix(divideNum){
                 block = blocks[randomIdx]
             }while(!block.canMoveBlock());
             block.moveBlock();
-        }, i*10));
+        }, i*SLIDING_BLOCKS_TIME*1.5));
     }
 }
 

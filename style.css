@@ -59,5 +59,6 @@ body{
 #board .block {
     position: absolute;
     background-color:#D97904;
+    z-index: 2;
     background-repeat: no-repeat;
 }
