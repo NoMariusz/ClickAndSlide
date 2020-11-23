@@ -1,12 +1,13 @@
 const divides = [3, 4, 5, 6];
 const blocks = [];
 let blankBlock = null;
+let stopMoving = false;     // variable to stop all not ended block moving
 
 //block
-const SLIDING_BLOCKS_TIME = 60;
-const SLIDING_BLOCKS_SMOOTH = 20;
+const SLIDING_BLOCKS_TIME = 10;
+const SLIDING_BLOCKS_SMOOTH = 4;
 const boardNode = document.getElementById('board');
-const mixingTimeouts = [];
+
 
 class Block{
     constructor(id, divideNum, pos, isBlank){
@@ -51,29 +52,27 @@ class Block{
 
     onBlockClick(){
         if (!this.canMoveBlock()){return false}
-        this.moveBlock();
-        setTimeout(checkIfBlocksGoodPositioned, SLIDING_BLOCKS_TIME);
+        this.moveBlock().then(() => {
+            checkIfBlocksGoodPositioned()
+        });
     }
 
-    moveBlock(){
+    async moveBlock(){
         const blankPosition = blankBlock.position;
         const actualPosition = this.position;
-        this.moveToPos(blankPosition);
-        blankBlock.moveToPos(actualPosition);
+        await Promise.all([this.moveToPos(blankPosition), blankBlock.moveToPos(actualPosition)]);   // making both moves in parrael, and wait to both end work
     }
 
-    moveToPos(newPos){
+    async moveToPos(newPos){
         let positionToIncrease = {left: (newPos.column - this.position.column) * this.blockSize / SLIDING_BLOCKS_SMOOTH,
             top: (newPos.row - this.position.row) * this.blockSize / SLIDING_BLOCKS_SMOOTH}
-        for (let timeoutIter = 1; timeoutIter <= SLIDING_BLOCKS_SMOOTH; timeoutIter++) {
-            let moveInterval = setTimeout(() => {
-                this.htmlNode.style.left = this.position.column * this.blockSize + positionToIncrease.left * timeoutIter + '%';
-                this.htmlNode.style.top = this.position.row * this.blockSize + positionToIncrease.top * timeoutIter+ '%';
-                if (timeoutIter == SLIDING_BLOCKS_SMOOTH){
-                    this.position = newPos;
-                }
-            }, (timeoutIter - 1) * SLIDING_BLOCKS_TIME / SLIDING_BLOCKS_SMOOTH);
+        for (let moveIter = 1; moveIter <= SLIDING_BLOCKS_SMOOTH; moveIter++) {
+            if (stopMoving){return false};
+            this.htmlNode.style.left = this.position.column * this.blockSize + positionToIncrease.left * moveIter + '%';
+            this.htmlNode.style.top = this.position.row * this.blockSize + positionToIncrease.top * moveIter+ '%';
+            await sleep(SLIDING_BLOCKS_TIME / SLIDING_BLOCKS_SMOOTH);
         }
+        this.position = newPos;
     }
 }
 
@@ -81,9 +80,7 @@ function makeMixButtons(){
     const mixButtonsParrent = document.getElementById('mixButtons');
     divides.forEach((divideNum) => {
         const btn = document.createElement('button');
-        btn.onclick = () => {
-            mix(divideNum)
-        }
+        btn.onclick = () => {mix(divideNum)}
         btn.innerText = `${divideNum} x ${divideNum}`;
         mixButtonsParrent.appendChild(btn);
     })
@@ -91,44 +88,49 @@ function makeMixButtons(){
 
 function mix(divideNum){
     console.log('mixing board for num', divideNum);
-    //clearing other configuration
+    //clearing other blocks
     boardNode.innerHTML = '';
     blocks.splice(0, blocks.length);
-    mixingTimeouts.forEach((tim) => {clearTimeout(tim)});
-    mixingTimeouts.splice(0, mixingTimeouts.length);
-
-    // init blocks to board
-    for (let numIterRow = 0; numIterRow < divideNum; numIterRow++) {
-        for (let numIterColumn= 0; numIterColumn < divideNum; numIterColumn++) {
-            let block;
-            if (numIterRow + 1 == divideNum && numIterColumn + 1 == divideNum){
-                block = new Block((numIterRow * divideNum) + numIterColumn, divideNum, {row: numIterRow, column: numIterColumn}, true)
-                blankBlock = block;
-            } else {
-                block = new Block((numIterRow * divideNum) + numIterColumn, divideNum, {row: numIterRow, column: numIterColumn}, false)
-            }
-            blocks.push(block);
-        }
+    
+    // init blocks
+    for (let numIter = 0; numIter < Math.pow(divideNum, 2) -1; numIter++) {
+        blocks.push(new Block(numIter, divideNum, {row: Math.floor(numIter/divideNum), column: numIter%divideNum}, false));
     }
-
+    blankBlock = new Block(Math.pow(divideNum, 2) -1, divideNum, {row: divideNum -1, column: divideNum -1}, true);
+    blocks.push(blankBlock);
+    
     // mixing blocks
+    mixBlocks(divideNum);
+}
+
+async function mixBlocks(divideNum){    // function moving random blocks in board to mix them, 
+    // to stop moving old blocks
+    stopMoving = true;
+    await sleep(SLIDING_BLOCKS_TIME / SLIDING_BLOCKS_SMOOTH * 2);   // wait to all old blocks stop moving
+    stopMoving = false;
+
+    let lastBlockId = -1   // var to store id of last moved block, to not move that same block twice
     for(let i = 0; i <= Math.pow(divideNum, 3); i++){
-        mixingTimeouts.push(setTimeout(function(){
-            let block;
-            let randomIdx;
-            do{
-                randomIdx = Math.floor(Math.random() * blocks.length);
-                block = blocks[randomIdx]
-            }while(!block.canMoveBlock());
-            block.moveBlock();
-        }, i*SLIDING_BLOCKS_TIME*1.5));
+        let block;
+        let randomIdx;
+        do{
+            randomIdx = Math.floor(Math.random() * blocks.length);
+            block = blocks[randomIdx]
+        }while((!block.canMoveBlock()) || lastBlockId == block.id);
+        lastBlockId = block.id;
+        await block.moveBlock();
+        if (stopMoving){break}  // break loop if stop moving
     }
 }
 
 function checkIfBlocksGoodPositioned(){
-    if(blocks.find(block => !block.isInGoodPos()) == undefined){
+    if(blocks.find(block => !block.isInGoodPos()) == undefined){    // if not found block that not isInGoodPos, then all blocks are in valid pos
         alert('Wow, you win, nice!');
     }
+}
+
+function sleep(ms) {        // function to sleep in async functions
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 makeMixButtons();
