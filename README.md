@@ -1,5 +1,6 @@
 # ClickAndSlide
 ![Screenshot](images/screens/Screen1.jpg "Screenshot")
+
 Simple 15 game in JavaScript
 
 ## Work

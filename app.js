@@ -16,7 +16,7 @@ class Block{
         this.position = pos;    // object with props row, column
         this.isBlank = isBlank;
         this.blockSize = (100 / this.divideNum)
-        this.htmlNode = this.makeBlockNode();
+        this.htmlNode = isBlank ? null : this.makeBlockNode();
     }
 
     makeBlockNode(){
@@ -28,15 +28,11 @@ class Block{
         htmlNode.style.left = this.position.column * this.blockSize + '%';
         htmlNode.style.top = this.position.row * this.blockSize + '%';
 
-        if (!this.isBlank){
-            htmlNode.style.backgroundImage = 'url("./images/image1.jpg")';
-            htmlNode.style.backgroundSize = (100 * this.divideNum) + '%';
-            htmlNode.style.backgroundPosition = `${this.position.column * 100 / (this.divideNum - 1)}% \
-            ${this.position.row * 100/ (this.divideNum - 1)}%`;
-            htmlNode.onclick = () => {this.onBlockClick()}
-        } else {
-            htmlNode.style.zIndex = 1;
-        }
+        htmlNode.style.backgroundImage = 'url("./images/image1.jpg")';
+        htmlNode.style.backgroundSize = (100 * this.divideNum) + '%';
+        htmlNode.style.backgroundPosition = `${this.position.column * 100 / (this.divideNum - 1)}% \
+        ${this.position.row * 100/ (this.divideNum - 1)}%`;
+        htmlNode.onclick = () => {this.onBlockClick()}
 
         boardNode.appendChild(htmlNode)
         return htmlNode;
@@ -60,7 +56,8 @@ class Block{
     async moveBlock(){
         const blankPosition = blankBlock.position;
         const actualPosition = this.position;
-        await Promise.all([this.moveToPos(blankPosition), blankBlock.moveToPos(actualPosition)]);   // making both moves in parrael, and wait to both end work
+        await this.moveToPos(blankPosition)
+        blankBlock.position = actualPosition;
     }
 
     async moveToPos(newPos){
@@ -116,7 +113,7 @@ async function mixBlocks(divideNum){    // function moving random blocks in boar
         do{
             randomIdx = Math.floor(Math.random() * blocks.length);
             block = blocks[randomIdx]
-        }while((!block.canMoveBlock()) || lastBlockId == block.id);
+        }while((!block.canMoveBlock()) || lastBlockId == block.id || block.isBlank);
         lastBlockId = block.id;
         await block.moveBlock();
         if (stopMoving){break}  // break loop if stop moving
