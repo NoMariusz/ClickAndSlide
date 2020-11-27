@@ -137,9 +137,7 @@ async function mixBlocks(divideNum){    // function moving random blocks in boar
 
 function checkIfBlocksGoodPositioned(){
     if(blocks.find(block => !block.isInGoodPos()) == undefined){    // if not found block that not isInGoodPos, then all blocks are in valid pos
-        let timeStr = updateTimer(undefined, true)
-        alert(`Wow, you win, nice!\nIt tooks you ${timeStr}`);
-        stopTimer();
+        displayWin();
     }
 }
 
@@ -168,9 +166,9 @@ function startTimer() {
     timerInterval = setInterval(updateTimer, 1);
 }
 
-function stopTimer(clear=true){
+function stopTimer(update=true){
     clearInterval(timerInterval);
-    updateTimer(0);
+    if (update){updateTimer(0)};
 }
 
 function updateTimer(timeEllapsed=Date.now() - startTimeMs, returnTimeStr=false){
@@ -202,6 +200,20 @@ function updateTimer(timeEllapsed=Date.now() - startTimeMs, returnTimeStr=false)
     if (returnTimeStr){
         return timeStr;
     }
+}
+
+//win panel
+function displayWin(){
+    let overlayPanel = document.getElementById('overlayPanel')
+    overlayPanel.style.display = 'flex';
+    let timeStr = updateTimer(undefined, true);
+    overlayPanel.querySelector('p').innerText = `Wow, you win, nice!\nIt tooks you ${timeStr}`
+    stopTimer(false);
+}
+
+function closeOverlay(){
+    document.getElementById('overlayPanel').style.display = 'none';
+    stopTimer();
 }
 
 makeTimer();
