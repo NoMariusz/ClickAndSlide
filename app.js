@@ -3,6 +3,12 @@ const blocks = [];
 let blankBlock = null;
 let stopMoving = false;     // variable to stop all not ended block moving
 
+//timer
+const timerBlock = document.getElementById('timer');
+const timeDividers = [10*60*60*1000, 60*60*1000, -1, 10*60*1000, 60 * 1000, -1, 10*1000, 1000, -2, 100, 10, 1];
+let timerInterval = null;
+let startTimeMs = 0;
+
 //block
 const SLIDING_BLOCKS_TIME = 10;
 const SLIDING_BLOCKS_SMOOTH = 4;
@@ -43,6 +49,7 @@ class Block{
     }
 
     canMoveBlock(){
+        if (this.isBlank) {return false}
         return Math.abs(blankBlock.position.row - this.position.row) + Math.abs(blankBlock.position.column - this.position.column) == 1;
     }
 
@@ -88,6 +95,9 @@ function mix(divideNum){
     //clearing other blocks
     boardNode.innerHTML = '';
     blocks.splice(0, blocks.length);
+
+    //stopping oldTimer
+    stopTimer();
     
     // init blocks
     for (let numIter = 0; numIter < Math.pow(divideNum, 2) -1; numIter++) {
@@ -103,7 +113,7 @@ function mix(divideNum){
 async function mixBlocks(divideNum){    // function moving random blocks in board to mix them, 
     // to stop moving old blocks
     stopMoving = true;
-    await sleep(SLIDING_BLOCKS_TIME / SLIDING_BLOCKS_SMOOTH * 2);   // wait to all old blocks stop moving
+    await sleep(SLIDING_BLOCKS_TIME / SLIDING_BLOCKS_SMOOTH * 10);   // wait to all old blocks stop moving
     stopMoving = false;
 
     let lastBlockId = -1   // var to store id of last moved block, to not move that same block twice
@@ -113,16 +123,21 @@ async function mixBlocks(divideNum){    // function moving random blocks in boar
         do{
             randomIdx = Math.floor(Math.random() * blocks.length);
             block = blocks[randomIdx]
-        }while((!block.canMoveBlock()) || lastBlockId == block.id || block.isBlank);
+        }while((!block.canMoveBlock()) || lastBlockId == block.id);
         lastBlockId = block.id;
         await block.moveBlock();
-        if (stopMoving){break}  // break loop if stop moving
+        if (stopMoving){
+            return false;
+        }  // break loop if stop moving
     }
+    startTimer();
 }
 
 function checkIfBlocksGoodPositioned(){
     if(blocks.find(block => !block.isInGoodPos()) == undefined){    // if not found block that not isInGoodPos, then all blocks are in valid pos
-        alert('Wow, you win, nice!');
+        let timeStr = updateTimer(undefined, true)
+        alert(`Wow, you win, nice!\nIt tooks you ${timeStr}`);
+        stopTimer();
     }
 }
 
@@ -130,4 +145,62 @@ function sleep(ms) {        // function to sleep in async functions
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// timer
+function makeTimer(){
+    for (let numIter = 0; numIter < timeDividers.length; numIter++) {
+        const img = document.createElement('img');
+        if (timeDividers[numIter] == -2){
+            img.src = './images/numbers/dot.gif';
+        }
+        else if (timeDividers[numIter] == -1){
+            img.src = './images/numbers/colon.gif';
+        } else {
+            img.src = './images/numbers/c0.gif';
+        }
+        timerBlock.appendChild(img);
+    }
+}
+
+function startTimer() {
+    startTimeMs = Date.now();
+    timerInterval = setInterval(updateTimer, 1);
+}
+
+function stopTimer(clear=true){
+    clearInterval(timerInterval);
+    updateTimer(0);
+}
+
+function updateTimer(timeEllapsed=Date.now() - startTimeMs, returnTimeStr=false){
+    let timeStr = '';
+
+    for (let timeDividerIdx = 0; timeDividerIdx < timeDividers.length; timeDividerIdx++) {
+        const timeDivider = timeDividers[timeDividerIdx];
+        if (timeDivider < 0){      // if image is colon or dot add to str and not update image
+            if (returnTimeStr){
+                if (timeDivider == -1){
+                    timeStr += ':';
+                }
+                else if (timeDivider == -2){
+                    timeStr += '.';
+                }
+            }
+            continue
+        }
+        
+        const posNum = Math.floor(timeEllapsed / timeDivider);
+        timeEllapsed = timeEllapsed % timeDivider;
+        timerBlock.children[timeDividerIdx].src = `./images/numbers/c${posNum}.gif`
+
+        if (returnTimeStr){
+            timeStr += posNum.toString();
+        }
+    }
+
+    if (returnTimeStr){
+        return timeStr;
+    }
+}
+
+makeTimer();
 makeMixButtons();

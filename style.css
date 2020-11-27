@@ -27,7 +27,7 @@ body{
 }
 
 #mixButtons{
-    margin-top: 2rem;
+    margin-top: 1rem;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -47,8 +47,19 @@ body{
     background-color:#731702;
 }
 
+#timer{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+#timer img{
+    filter: hue-rotate(180deg) contrast(200%);
+}
+
 #board{
-    margin-top: 2rem;
+    margin-top: 1rem;
     background-color: #D97904;
     border: 0.1rem solid #BF3706;
     width: 30rem;
@@ -59,6 +70,5 @@ body{
 #board .block {
     position: absolute;
     background-color:#D97904;
-    z-index: 2;
     background-repeat: no-repeat;
 }
