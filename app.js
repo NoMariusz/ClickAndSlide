@@ -64,7 +64,9 @@ class Block{
         const blankPosition = blankBlock.position;
         const actualPosition = this.position;
         await this.moveToPos(blankPosition)
-        blankBlock.position = actualPosition;
+        if (!stopMoving){
+            blankBlock.position = actualPosition;
+        }
     }
 
     async moveToPos(newPos){
@@ -126,9 +128,9 @@ async function mixBlocks(divideNum){    // function moving random blocks in boar
         }while((!block.canMoveBlock()) || lastBlockId == block.id);
         lastBlockId = block.id;
         await block.moveBlock();
-        if (stopMoving){
+        if (stopMoving){    // break loop if stop moving
             return false;
-        }  // break loop if stop moving
+        }
     }
     startTimer();
 }
