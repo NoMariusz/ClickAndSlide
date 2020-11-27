@@ -9,7 +9,6 @@ Simple 15 game in JavaScript
 * when all blocks in correct position, player win
 
 ## TODO
-* timer counting time
 * saving records
 * slider with other images
 
