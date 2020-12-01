@@ -5,7 +5,7 @@
 }
 
 body{
-    background-color: #99D0F2;
+    background-color: #E9EFF2;
 }
 
 #app{
@@ -44,13 +44,13 @@ button{
     font-size: 1rem;
     border-radius: 10%;
     border: none;
-    background-color: #BF3706;
-    color: white;
+    background-color: #F2D0D1;
+    color: #E9EFF2;
     transition: box-shaddow 0.5s;
 }
 
 button:hover{
-    box-shadow:0.1rem 0.1rem 0.3rem rgba(0,0,0,0.3);
+    box-shadow:0.1rem 0.1rem 0.3rem rgba(166,166,149,0.3);
 }
 
 #timer{
@@ -61,13 +61,13 @@ button:hover{
 }
 
 #timer img{
-    filter: hue-rotate(180deg) contrast(200%);
+    filter: invert(60%) contrast(500%) sepia(200%) grayscale(100%);
 }
 
 #board{
     margin-top: 1rem;
-    background-color: #D97904;
-    border: 0.1rem solid #BF3706;
+    background-color: #F2F2D0;
+    border: 0.1rem solid #F2D0D1;
     width: 30rem;
     height: 30rem;
     position: relative;
@@ -77,7 +77,7 @@ button:hover{
 
 #board .block {
     position: absolute;
-    background-color:#D97904;
+    background-color:#F2F2D0;
     background-repeat: no-repeat;
 }
 
@@ -90,7 +90,7 @@ button:hover{
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0,0,0,0.3);
+    background-color:rgba(166,166,149,0.3);
     z-index: 2;
     flex-direction: column;
     align-items: center;
@@ -99,7 +99,7 @@ button:hover{
 
 #panel{
     border-radius: 10%;
-    background-color: #fff;
+    background-color: #E9EFF2;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -110,7 +110,7 @@ button:hover{
     margin: 2rem;
     font-size: 2rem;
     text-align: center;
-    color: #BF3706;
+    color: #8F9DA6;
 }
 
 #panel button{

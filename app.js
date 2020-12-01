@@ -10,7 +10,7 @@ let timerInterval = null;
 let startTimeMs = 0;
 
 //block
-const SLIDING_BLOCKS_TIME = 10;
+const SLIDING_BLOCKS_TIME = 50;
 const SLIDING_BLOCKS_SMOOTH = 4;
 const boardNode = document.getElementById('board');
 
