@@ -8,11 +8,15 @@ const timerBlock = document.getElementById('timer');
 const timeDividers = [10*60*60*1000, 60*60*1000, -1, 10*60*1000, 60 * 1000, -1, 10*1000, 1000, -2, 100, 10, 1];
 let timerInterval = null;
 let startTimeMs = 0;
+let timeEllapsed = 0;
 
 //block
 const SLIDING_BLOCKS_TIME = 50;
 const SLIDING_BLOCKS_SMOOTH = 4;
 const boardNode = document.getElementById('board');
+
+//records
+let actualDivider = 3;
 
 
 class Block{
@@ -94,6 +98,7 @@ function makeMixButtons(){
 
 function mix(divideNum){
     console.log('mixing board for num', divideNum);
+    actualDivider = divideNum;
     //clearing other blocks
     boardNode.innerHTML = '';
     blocks.splice(0, blocks.length);
@@ -171,50 +176,140 @@ function stopTimer(update=true){
     if (update){updateTimer(0)};
 }
 
-function updateTimer(timeEllapsed=Date.now() - startTimeMs, returnTimeStr=false){
-    let timeStr = '';
-
+function updateTimer(setTime=undefined){
+    timeEllapsed = setTime==undefined ? Date.now() - startTimeMs : setTime
+    let tempTimeEllapsed = timeEllapsed
     for (let timeDividerIdx = 0; timeDividerIdx < timeDividers.length; timeDividerIdx++) {
         const timeDivider = timeDividers[timeDividerIdx];
         if (timeDivider < 0){      // if image is colon or dot add to str and not update image
-            if (returnTimeStr){
-                if (timeDivider == -1){
-                    timeStr += ':';
-                }
-                else if (timeDivider == -2){
-                    timeStr += '.';
-                }
+            continue
+        }
+        const posNum = Math.floor(tempTimeEllapsed / timeDivider);
+        tempTimeEllapsed = tempTimeEllapsed % timeDivider;
+        timerBlock.children[timeDividerIdx].src = `./images/numbers/c${posNum}.gif`
+    }
+}
+
+function makeTimeStr(msTime=timeEllapsed){
+    let timeStr = '';
+    for (let timeDividerIdx = 0; timeDividerIdx < timeDividers.length; timeDividerIdx++) {
+        const timeDivider = timeDividers[timeDividerIdx];
+        if (timeDivider < 0){      // if image is colon or dot add to str and not update image
+            if (timeDivider == -1){
+                timeStr += ':';
+            }
+            else if (timeDivider == -2){
+                timeStr += '.';
             }
             continue
         }
         
-        const posNum = Math.floor(timeEllapsed / timeDivider);
-        timeEllapsed = timeEllapsed % timeDivider;
-        timerBlock.children[timeDividerIdx].src = `./images/numbers/c${posNum}.gif`
-
-        if (returnTimeStr){
-            timeStr += posNum.toString();
-        }
+        const posNum = Math.floor(msTime / timeDivider);
+        msTime = msTime % timeDivider;
+        timeStr += posNum.toString();
     }
-
-    if (returnTimeStr){
-        return timeStr;
-    }
+    return timeStr
 }
 
 //win panel
 function displayWin(){
     let overlayPanel = document.getElementById('overlayPanel')
     overlayPanel.style.display = 'flex';
-    let timeStr = updateTimer(undefined, true);
+    let timeStr = makeTimeStr();
     overlayPanel.querySelector('p').innerText = `Wow, you win, nice!\nIt tooks you ${timeStr}`
     stopTimer(false);
 }
 
 function closeOverlay(){
+    let nick = document.getElementById('nickInput');
+    addNewRecord([nick.value, timeEllapsed]); // adding new result to records
+    nick.value = '';    // clearing input
+
     document.getElementById('overlayPanel').style.display = 'none';
     stopTimer();
 }
 
+//records
+function saveRecordsToCookie(saveObj){
+    document.cookie = `RecordsData=${encodeURIComponent(JSON.stringify(saveObj))};Expires=${new Date(Date.now() + 1000*60*60*24*3).toUTCString()}`
+}
+
+function getRecordsFromCookie(){
+    if (document.cookie.split(';')[0].split('=')[0] != 'RecordsData'){return false}
+    return JSON.parse(decodeURIComponent(document.cookie.split(';')[0].split('=')[1]));
+}
+
+function initRecords(){
+    if (getRecordsFromCookie() === false){
+        let dataTemplate = {}
+        divides.forEach( divider => {dataTemplate[divider] = Array(10).fill([])})
+        console.log(dataTemplate);
+        saveRecordsToCookie(dataTemplate);
+    }
+}
+
+function addNewRecord(record){
+    console.log(record);
+    let recordsObj = getRecordsFromCookie()
+    for (let recordsIdx = 0; recordsIdx < 10; recordsIdx++) {
+        const element = recordsObj[actualDivider][recordsIdx];
+        if(record[1] < element[1] || element.length == 0){
+            recordsObj[actualDivider].splice(recordsIdx, 0, record);
+            recordsObj[actualDivider] = recordsObj[actualDivider].slice(0, 10);
+            break;
+        }
+    }
+    saveRecordsToCookie(recordsObj);
+    loadRecordsToPage();
+}
+
+function displayRecords(){
+    let recordPanel = document.getElementById('recordsPanel')
+    if (recordPanel.classList.contains('hidden')) {
+        recordPanel.classList.remove('hidden')
+    } else {
+        recordPanel.classList.add('hidden')
+    }
+}
+
+function displayRecordsPanel(num){
+    let resultsBlocks = document.getElementsByClassName('results')
+    for (let resultIdx = 0; resultIdx < resultsBlocks.length; resultIdx++) {
+        resultsBlocks[resultIdx].classList.add('hidden')
+        if (resultIdx == divides.indexOf(num)) {
+            resultsBlocks[resultIdx].classList.remove('hidden')
+        }
+    }
+}
+
+function loadRecordsToPage(){
+    let resultsBlocks = document.getElementsByClassName('results')
+    let recordsObj = getRecordsFromCookie()
+    divides.forEach(divider => {
+        let resultBlock = resultsBlocks[divides.indexOf(divider)];
+        resultBlock.innerHTML = '';
+        for (let recordIdx = 0; recordIdx < recordsObj[divider].length; recordIdx++) {
+            const record = recordsObj[divider][recordIdx];
+            let row = document.createElement('div')
+            row.classList.add('row');
+            resultBlock.appendChild(row);
+
+            function makeP(str, nick=false){
+                if (str == undefined) {str = '-'}
+                let p = document.createElement('p')
+                p.innerText = str;
+                if(nick){p.classList.add('nickP')};
+                row.appendChild(p);
+            }
+
+            makeP(recordIdx + 1)
+            makeP((record[0] == undefined ? '' : record[0]).slice(0, 13), true)
+            makeP(makeTimeStr(record[1] == undefined ? 0 : record[1]))
+        }
+    })
+}
+
 makeTimer();
 makeMixButtons();
+initRecords();
+loadRecordsToPage();

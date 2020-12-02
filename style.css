@@ -8,6 +8,10 @@ body{
     background-color: #E9EFF2;
 }
 
+.hidden{
+    display: none;
+}
+
 #app{
     display: flex;
     width: 100%;
@@ -113,7 +117,66 @@ button:hover{
     color: #8F9DA6;
 }
 
+#panel input {
+    margin: 2rem;
+    font-size: 2rem;
+    text-align: center;
+    color: #8F9DA6;
+    background-color: #F2F2D0;
+    border: 0.1rem solid #F2D0D1;
+}
+
 #panel button{
     margin: 1rem;
     font-size: 3rem;
+}
+
+#records{
+    display: flex;
+    flex-direction: row;
+    z-index: 3;
+    position: absolute;
+    top: 0;
+    align-items: start;
+}
+
+#records button{
+    margin-left: 0;
+    border: 0.1rem solid #F2D0D1;
+}
+
+#displayRecords{
+    font-size: 4rem;
+    background-color:#F2F2D0;
+    color: #F2D0D1;
+}
+
+#recordsPanel {
+    background-color:#F2F2D0;
+    min-height: 7rem;
+    padding: 1rem;
+    border: 0.1rem solid #F2D0D1;
+    border-radius: 2%;
+}
+
+#dividersSelect{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.results .row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.row p{
+    font-size: 1rem;
+    color: #8F9DA6;
+    margin: 0.4rem;
+}
+
+.nickP{
+    min-width: 9rem;
 }

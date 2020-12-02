@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ClickAndSlide</title>
     <link rel="stylesheet" href="style.css">
     <script defer src="./app.js"></script>
 </head>
@@ -19,8 +19,25 @@
     <div id="overlayPanel">
         <div id="panel">
             <p></p>
+            <p>Please, enter your nick:</p>
+            <input type="text" id='nickInput'>
             <button onclick="closeOverlay()">Ok</button>
         </div>
+    </div>
+    <div id="records">
+        <div id="recordsPanel" class="hidden">
+            <div id="dividersSelect">
+                <button onclick="displayRecordsPanel(3)">3x3</button>
+                <button onclick="displayRecordsPanel(4)">4x4</button>
+                <button onclick="displayRecordsPanel(5)">5x5</button>
+                <button onclick="displayRecordsPanel(6)">6x6</button>
+            </div>
+            <div class="results hidden"></div>
+            <div class="results hidden"></div>
+            <div class="results hidden"></div>
+            <div class="results hidden"></div>
+        </div>
+        <button id="displayRecords" onclick="displayRecords()">></button>
     </div>
 </body>
 </html>
