@@ -1,7 +1,6 @@
 const divides = [3, 4, 5, 6];
 const blocks = [];
 let blankBlock = null;
-let stopMoving = false;     // variable to stop all not ended block moving
 
 //timer
 const timerBlock = document.getElementById('timer');
@@ -14,6 +13,7 @@ let timeEllapsed = 0;
 const SLIDING_BLOCKS_TIME = 50;
 const SLIDING_BLOCKS_SMOOTH = 4;
 const boardNode = document.getElementById('board');
+let stopMoving = false;     // variable to stop all not ended block moving
 
 //records
 let actualDivider = 3;
@@ -240,21 +240,19 @@ function getRecordsFromCookie(){
 }
 
 function initRecords(){
-    if (getRecordsFromCookie() === false){
+    if (getRecordsFromCookie() === false){  // if at browser there is no result cookie, then add it
         let dataTemplate = {}
-        divides.forEach( divider => {dataTemplate[divider] = Array(10).fill([])})
-        console.log(dataTemplate);
+        divides.forEach( divider => {dataTemplate[divider] = Array(10).fill([])})   // making template to results
         saveRecordsToCookie(dataTemplate);
     }
 }
 
-function addNewRecord(record){
-    console.log(record);
+function addNewRecord(result){      // adding new result, if time is not at best, then not change records
     let recordsObj = getRecordsFromCookie()
     for (let recordsIdx = 0; recordsIdx < 10; recordsIdx++) {
-        const element = recordsObj[actualDivider][recordsIdx];
-        if(record[1] < element[1] || element.length == 0){
-            recordsObj[actualDivider].splice(recordsIdx, 0, record);
+        const record = recordsObj[actualDivider][recordsIdx];
+        if(result[1] < record[1] || record.length == 0){    // if records are worse than result, or records is empty, then add new record
+            recordsObj[actualDivider].splice(recordsIdx, 0, result);
             recordsObj[actualDivider] = recordsObj[actualDivider].slice(0, 10);
             break;
         }
@@ -263,17 +261,25 @@ function addNewRecord(record){
     loadRecordsToPage();
 }
 
-function displayRecords(){
+function displayRecords(e){
     let recordPanel = document.getElementById('recordsPanel')
     if (recordPanel.classList.contains('hidden')) {
         recordPanel.classList.remove('hidden')
+        e.target.innerHTML = '<'
     } else {
+        e.target.innerHTML = '>'
         recordPanel.classList.add('hidden')
     }
 }
 
-function displayRecordsPanel(num){
-    let resultsBlocks = document.getElementsByClassName('results')
+function displayRecordsPanel(num, btn){
+    let buttons = document.querySelectorAll('#dividersSelect button')   // clearing color from other buttons
+    for (let btnIdx = 0; btnIdx < buttons.length; btnIdx++) {
+        buttons[btnIdx].classList.remove('selected')
+    }
+    btn.classList.add('selected')   // adding special look to clicked button
+
+    let resultsBlocks = document.getElementsByClassName('results')      // hide all blocks and unhide choosen block with records
     for (let resultIdx = 0; resultIdx < resultsBlocks.length; resultIdx++) {
         resultsBlocks[resultIdx].classList.add('hidden')
         if (resultIdx == divides.indexOf(num)) {
@@ -285,7 +291,7 @@ function displayRecordsPanel(num){
 function loadRecordsToPage(){
     let resultsBlocks = document.getElementsByClassName('results')
     let recordsObj = getRecordsFromCookie()
-    divides.forEach(divider => {
+    divides.forEach(divider => {    // for all block for divider records add 10 rows with records (place, nick, time)
         let resultBlock = resultsBlocks[divides.indexOf(divider)];
         resultBlock.innerHTML = '';
         for (let recordIdx = 0; recordIdx < recordsObj[divider].length; recordIdx++) {
@@ -294,11 +300,11 @@ function loadRecordsToPage(){
             row.classList.add('row');
             resultBlock.appendChild(row);
 
-            function makeP(str, nick=false){
+            function makeP(str, nick=false){    // making <p> node and add to row
                 if (str == undefined) {str = '-'}
                 let p = document.createElement('p')
                 p.innerText = str;
-                if(nick){p.classList.add('nickP')};
+                if(nick){p.classList.add('nickP')};     // nick have special styling
                 row.appendChild(p);
             }
 

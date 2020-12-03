@@ -27,17 +27,17 @@
     <div id="records">
         <div id="recordsPanel" class="hidden">
             <div id="dividersSelect">
-                <button onclick="displayRecordsPanel(3)">3x3</button>
-                <button onclick="displayRecordsPanel(4)">4x4</button>
-                <button onclick="displayRecordsPanel(5)">5x5</button>
-                <button onclick="displayRecordsPanel(6)">6x6</button>
+                <button onclick="displayRecordsPanel(3, this)">3x3</button>
+                <button onclick="displayRecordsPanel(4, this)">4x4</button>
+                <button onclick="displayRecordsPanel(5, this)">5x5</button>
+                <button onclick="displayRecordsPanel(6, this)">6x6</button>
             </div>
             <div class="results hidden"></div>
             <div class="results hidden"></div>
             <div class="results hidden"></div>
             <div class="results hidden"></div>
         </div>
-        <button id="displayRecords" onclick="displayRecords()">></button>
+        <button id="displayRecords" onclick="displayRecords(event)">></button>
     </div>
 </body>
 </html>
