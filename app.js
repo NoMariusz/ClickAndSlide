@@ -42,7 +42,6 @@ class Block{
         htmlNode.style.backgroundSize = (100 * this.divideNum) + '%';
         htmlNode.style.backgroundPosition = `${this.position.column * 100 / (this.divideNum - 1)}% \
         ${this.position.row * 100/ (this.divideNum - 1)}%`;
-        htmlNode.onclick = () => {this.onBlockClick()}
 
         boardNode.appendChild(htmlNode)
         return htmlNode;
@@ -84,6 +83,10 @@ class Block{
         }
         this.position = newPos;
     }
+
+    addClickEvent(){
+        this.htmlNode.onclick = () => {this.onBlockClick()}
+    }
 }
 
 function makeMixButtons(){
@@ -115,6 +118,8 @@ function mix(divideNum){
     
     // mixing blocks
     mixBlocks(divideNum);
+
+    blocks.forEach(block => {if (!block.isBlank) { block.addClickEvent()}})
 }
 
 async function mixBlocks(divideNum){    // function moving random blocks in board to mix them, 
@@ -143,7 +148,12 @@ async function mixBlocks(divideNum){    // function moving random blocks in boar
 function checkIfBlocksGoodPositioned(){
     if(blocks.find(block => !block.isInGoodPos()) == undefined){    // if not found block that not isInGoodPos, then all blocks are in valid pos
         displayWin();
+        lockBlocksAfterWin();
     }
+}
+
+function lockBlocksAfterWin() {
+    blocks.forEach(block => block.htmlNode.onclick = null);
 }
 
 function sleep(ms) {        // function to sleep in async functions
