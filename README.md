@@ -11,7 +11,8 @@ Simple 15 game in JavaScript
 ## Informations
 * after win, game are saving records in cookie, that expires after 3 days
 * app uses asynchronous operations to smoothest sliding images, and blocks in board
-* images are from awesome page [www.pexels.com](www.pexels.com)
+* images are from awesome page [www.pexels.com](https://www.pexels.com)
+
 
 ## TODO
 All required elements are maked
