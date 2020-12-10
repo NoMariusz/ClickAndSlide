@@ -18,6 +18,12 @@ let stopMoving = false;     // variable to stop all not ended block moving
 //records
 let actualDivider = 3;
 
+//slider
+let actualImageNumber = 0;
+const SLIDING_IMAGE_TIME = 1000;
+const SLIDING_IMAGE_SMOOTH = 8;
+const IMAGES_COUNT = 4;
+
 
 class Block{
     constructor(id, divideNum, pos, isBlank){
@@ -38,7 +44,7 @@ class Block{
         htmlNode.style.left = this.position.column * this.blockSize + '%';
         htmlNode.style.top = this.position.row * this.blockSize + '%';
 
-        htmlNode.style.backgroundImage = 'url("./images/image1.jpg")';
+        htmlNode.style.backgroundImage = `url("./images/image${actualImageNumber % IMAGES_COUNT}.jpg")`;
         htmlNode.style.backgroundSize = (100 * this.divideNum) + '%';
         htmlNode.style.backgroundPosition = `${this.position.column * 100 / (this.divideNum - 1)}% \
         ${this.position.row * 100/ (this.divideNum - 1)}%`;
@@ -117,9 +123,7 @@ function mix(divideNum){
     blocks.push(blankBlock);
     
     // mixing blocks
-    mixBlocks(divideNum);
-
-    blocks.forEach(block => {if (!block.isBlank) { block.addClickEvent()}})
+    mixBlocks(divideNum)
 }
 
 async function mixBlocks(divideNum){    // function moving random blocks in board to mix them, 
@@ -142,7 +146,8 @@ async function mixBlocks(divideNum){    // function moving random blocks in boar
             return false;
         }
     }
-    startTimer();
+    blocks.forEach(block => {if (!block.isBlank) { block.addClickEvent()}}) // adding click listeners after successfully end of mixing
+    startTimer();   // starting timer after successfully end of mixing
 }
 
 function checkIfBlocksGoodPositioned(){
@@ -153,7 +158,7 @@ function checkIfBlocksGoodPositioned(){
 }
 
 function lockBlocksAfterWin() {
-    blocks.forEach(block => block.htmlNode.onclick = null);
+    blocks.forEach(block => {if (!block.isBlank){block.htmlNode.onclick = null}});
 }
 
 function sleep(ms) {        // function to sleep in async functions
@@ -275,9 +280,9 @@ function displayRecords(e){
     let recordPanel = document.getElementById('recordsPanel')
     if (recordPanel.classList.contains('hidden')) {
         recordPanel.classList.remove('hidden')
-        e.target.innerHTML = '<'
+        e.target.innerHTML = '&lt;'
     } else {
-        e.target.innerHTML = '>'
+        e.target.innerHTML = '&gt;'
         recordPanel.classList.add('hidden')
     }
 }
@@ -325,7 +330,36 @@ function loadRecordsToPage(){
     })
 }
 
+//slider
+function changeImage(toLeft){
+    let slidingContainer = document.getElementById('imagesBlock')
+    let pxScroll = slidingContainer.scrollWidth / (IMAGES_COUNT + 1)
+    if (toLeft){
+        if (actualImageNumber == 0){    // if image is at left edge, then change it to other edge
+            slidingContainer.scrollTo(slidingContainer.scrollWidth, 0)
+            actualImageNumber = IMAGES_COUNT
+        }
+        pxScroll = -pxScroll
+        actualImageNumber --
+    } else {
+        if (actualImageNumber == IMAGES_COUNT){     // if image is at right edge, then change it to other edge
+            slidingContainer.scrollTo(0, 0)
+            actualImageNumber = 0
+        }
+        actualImageNumber ++
+    }
+    scrollImage(slidingContainer, pxScroll);
+}
+
+async function scrollImage(container, pxScroll){       // async scrolling on container by pxScroll on x axis
+    for (let scrollCount = 0; scrollCount < SLIDING_IMAGE_SMOOTH; scrollCount++) {
+        container.scrollBy(pxScroll / SLIDING_IMAGE_SMOOTH, 0)
+        await sleep(SLIDING_BLOCKS_TIME / SLIDING_IMAGE_SMOOTH)
+    }
+}
+
 makeTimer();
 makeMixButtons();
 initRecords();
 loadRecordsToPage();
+document.getElementById('imagesBlock').scrollTo(0, 0)   // to prevet starting game with image scrolled at bad position

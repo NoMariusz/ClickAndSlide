@@ -19,17 +19,24 @@ body{
     align-items: center;
 }
 
+/*images*/
+
 #imageSelectBlock{
     display: flex;
     flex-direction: row;
     margin-top: 1rem;
+}
+
+#imagesBlock{
+    display: flex;
+    flex-direction: row;
     width: 8rem;
     height: 8rem;
     border-radius: 10%;
     overflow: hidden;
 }
 
-#imageThumbnail{
+.imageThumbnail{
     width: 8rem;
     height: 8rem;
 }
@@ -190,6 +197,6 @@ button:hover{
 /* .colors{
     color: #E9EFF2;
     color: #8F9DA6;
-    color:#F2F2D0;
-    color:#F2D0D1;;
+    color: #F2F2D0;
+    color: #F2D0D1;
 } */

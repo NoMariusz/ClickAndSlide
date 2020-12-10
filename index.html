@@ -10,7 +10,15 @@
 <body>
     <div id="app">
         <div id="imageSelectBlock">
-            <img src="./images/image1.jpg" alt="Image" id="imageThumbnail">
+            <button class="imagesBtn" onclick="changeImage(true)">&lt;</button>
+            <div id="imagesBlock">
+                <img src="./images/image0.jpg" alt="Image" class="imageThumbnail">
+                <img src="./images/image1.jpg" alt="Image" class="imageThumbnail">
+                <img src="./images/image2.jpg" alt="Image" class="imageThumbnail">
+                <img src="./images/image3.jpg" alt="Image" class="imageThumbnail">
+                <img src="./images/image0.jpg" alt="Image" class="imageThumbnail">
+            </div>
+            <button class="imagesBtn" onclick="changeImage(false)">&gt;</button>
         </div>
         <div id="mixButtons"></div>
         <div id="timer"></div>
@@ -37,7 +45,7 @@
             <div class="results hidden"></div>
             <div class="results hidden"></div>
         </div>
-        <button id="displayRecords" onclick="displayRecords(event)">></button>
+        <button id="displayRecords" onclick="displayRecords(event)">&gt;</button>
     </div>
 </body>
 </html>
